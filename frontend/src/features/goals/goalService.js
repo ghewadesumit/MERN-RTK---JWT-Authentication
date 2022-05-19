@@ -1,50 +1,41 @@
-import axios from 'axios'
+import axios from 'axios';
 
-const API_URL = '/api/goals/'
+const API_URL = '/api/goals/';
 
 // Create new goal
 const createGoal = async (goalData, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
+	/**const config = {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	};*/
+	const { axiosPrivate, goal } = goalData;
 
-  const response = await axios.post(API_URL, goalData, config)
+	// console.log(goalData);
+	// const response = await axiosPrivate.post(API_URL, goal, config);
+	const response = await axiosPrivate.post(API_URL, goal);
 
-  return response.data
-}
+	return response.data;
+};
 
 // Get user goals
-const getGoals = async (token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
-  const response = await axios.get(API_URL, config)
-
-  return response.data
-}
+const getGoals = async (axiosPrivate, token) => {
+	const response = await axiosPrivate.get(API_URL);
+	// console.log('Goal Service -> get goals: Response is', response);
+	return response.data;
+};
 
 // Delete user goal
-const deleteGoal = async (goalId, token) => {
-  const config = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-
-  const response = await axios.delete(API_URL + goalId, config)
-
-  return response.data
-}
+const deleteGoal = async (goalData, token) => {
+	const { axiosPrivate, id } = goalData;
+	const response = await axiosPrivate.delete(API_URL + id);
+	return response.data;
+};
 
 const goalService = {
-  createGoal,
-  getGoals,
-  deleteGoal,
-}
+	createGoal,
+	getGoals,
+	deleteGoal,
+};
 
-export default goalService
+export default goalService;
