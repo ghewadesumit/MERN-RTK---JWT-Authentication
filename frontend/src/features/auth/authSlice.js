@@ -3,10 +3,15 @@ import authService from './authService';
 
 // Get user from localStorage
 // const user = JSON.parse(localStorage.getItem('user'))
-
+const userDefaultState = {
+	_id: null,
+	name: null,
+	email: null,
+	token: null,
+};
 const initialState = {
 	// user: user ? user : null,
-	user: null,
+	user: userDefaultState,
 	isError: false,
 	isSuccess: false,
 	isLoading: false,
@@ -111,7 +116,7 @@ export const authSlice = createSlice({
 				state.isLoading = false;
 				state.isError = true;
 				state.message = action.payload;
-				state.user = null;
+				state.user = initialState;
 			})
 			.addCase(refresh.pending, (state) => {
 				state.isLoading = true;
