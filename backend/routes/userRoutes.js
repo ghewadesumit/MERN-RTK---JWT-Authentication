@@ -1,13 +1,10 @@
 const express = require('express')
-const router = express.Router();
-const {
-  registerUser,
-  getMe,
-} = require('../controllers/userController')
+const router = express.Router()
+const { registerUser, getMe } = require('../controllers/registerController')
 
-const {handleLogin}  = require('../controllers/authController');
-const {handleRefreshToken} = require('../controllers/refreshTokenController');
-const {handleLogout} = require('../controllers/logoutController');
+const { handleLogin } = require('../controllers/authController')
+const { handleRefreshToken } = require('../controllers/refreshTokenController')
+const { handleLogout } = require('../controllers/logoutController')
 const { protect } = require('../middleware/authMiddleware')
 
 router.post('/register', registerUser)
