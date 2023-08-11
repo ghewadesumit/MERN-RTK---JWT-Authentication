@@ -32,14 +32,14 @@ const handleLogin = asyncHandler(async (req, res) => {
             // refresh token expiry(1day)
             const refreshToken = generateRefreshToken(user.name)
             const update = { refreshToken }
-            const currentUser = await User.findOneAndUpdate(filter, update)
+            await User.findOneAndUpdate(filter, update)
             // console.log('Login: Current User is', currentUser);
 
             // setting httpOnly refreshToken is not accessible by JavaScript
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
                 sameSite: 'None',
-                secure: true,
+                // secure: true,
                 maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
             })
             const token = generateToken(user.name, user.roles)

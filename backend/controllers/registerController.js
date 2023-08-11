@@ -48,6 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
             console.log('Created User', user)
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
+                sameSite: 'None',
                 maxAge: 24 * 60 * 60 * 1000,
             })
             res.status(201).json({
