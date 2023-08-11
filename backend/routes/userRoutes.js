@@ -3,11 +3,11 @@ const router = express.Router();
 const {
   registerUser,
   getMe,
-  handleLogout
 } = require('../controllers/userController')
 
 const {handleLogin}  = require('../controllers/authController');
 const {handleRefreshToken} = require('../controllers/refreshTokenController');
+const {handleLogout} = require('../controllers/logoutController');
 const { protect } = require('../middleware/authMiddleware')
 
 router.post('/register', registerUser)

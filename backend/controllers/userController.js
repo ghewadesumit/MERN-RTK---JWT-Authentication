@@ -69,40 +69,7 @@ const registerUser = asyncHandler(async (req, res) => {
 	}	
 });
 
-// @desc    Logout a user
-// @route   POST /api/users/logout
-// @access  Public
-const handleLogout = asyncHandler(async (req, res) => {
-	const cookie = req.cookies;
-	// console.log('cookie', cookie);
-	if (!cookie?.refreshToken) return res.sendStatus(401);
-	const refreshToken = cookie.refreshToken;
-	// console.log(refreshToken);
 
-	// Is refreshtoken in DB
-	const user = await User.findOne({ refreshToken });
-	// console.log(user);
-	if (!user) {
-		res.clearCookie('refreshToken', {
-			httpOnly: true,
-			sameSite: 'None',
-			secure: true,
-		});
-		return res.sendStatus(204); //forbidden
-	}
-
-	//Delete refreshtoken from db
-
-	await User.findOneAndUpdate(refreshToken, { refreshToken: '' });
-
-	res.clearCookie('refreshToken', {
-		httpOnly: true,
-		sameSite: 'None',
-		secure: true,
-	});
-	// Use 'secure:true' for only https
-	res.sendStatus(204);
-});
 
 // @desc    Get user data
 // @route   GET /api/users/me
@@ -131,7 +98,6 @@ const generateRefreshToken = (name) => {
 module.exports = {
 	registerUser,
 	getMe,
-	handleLogout,
 	generateToken,
 	generateRefreshToken
 };

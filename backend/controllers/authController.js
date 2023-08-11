@@ -33,8 +33,8 @@ const handleLogin = asyncHandler(async (req, res) => {
             // setting httpOnly refreshToken is not accessible by JavaScript
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                // sameSite: 'None',
-                // secure: true,
+                sameSite: 'None',
+                secure: true,
                 maxAge: 24 * 60 * 60 * 1000,// this is equal to 1day
             });
             const token = generateToken(user.name);

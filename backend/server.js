@@ -5,6 +5,8 @@ const { errorHandler } = require('./middleware/errorMiddleware')
 const connectDB = require('./config/db')
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const credentials = require('./middleware/credentials');
+const corsOptions = require('./config/corsOptions');
 const port = process.env.PORT;
 const path = require('path');
 
@@ -17,18 +19,11 @@ const app = express()
 // use is like middleware and anything below app.use will first trigger app.use and then following 
 // api call will get triggered.
 // add your frontend application here
-const whiteList = ['https://www.google.com','http://localhost:5000','https://www.yutube.com'];
-const corsOptions = {
-    origin: (origin,callback)=>{
-      console.log(origin);
-        if(whiteList.indexOf(origin) !== -1 || !origin){
-            callback(null,true);
-        }else{
-            callback(new Error('I dont know you so not allowing you.. - cors'));
-        }
-    },
-    optionsSuccessStatus:200
-}
+
+// Handle options credentials check-before CORS!
+// and fetch cookies credentials requirement
+
+app.use(credentials);
 
 // Cross origin resource sharing
 app.use(cors(corsOptions));
