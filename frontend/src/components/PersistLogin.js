@@ -6,12 +6,13 @@ import Spinner from './Spinner';
 
 export const PersistLogin = () => {
 	// const [isLoading, setIsLoading] = useState(true);
-	// const [persist, setPersist] = useState(
-	// 	JSON.parse(localStorage.getItem('persist')) || false
-	// );
+	const [persist, setPersist] = useState(
+		JSON.parse(localStorage.getItem('persist')) || false
+	);
 
 	const dispatch = useDispatch();
 	const { user, isLoading } = useSelector((state) => state.auth);
+
 	useEffect(() => {
 		const verifyRefreshToken = async () => {
 			try {
@@ -32,6 +33,7 @@ export const PersistLogin = () => {
 		console.log(`isLoading: ${isLoading}`);
 		console.log(`Access token: ${JSON.stringify(user?.token)}`);
 	}, [isLoading, user]);
+
 	return (
 		<>{!persist ? <Outlet /> : isLoading ? <Spinner></Spinner> : <Outlet />}</>
 	);

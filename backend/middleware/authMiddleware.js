@@ -8,7 +8,7 @@ const protect = asyncHandler(async (req, res, next) => {
 		req.headers.authorization.startsWith('Bearer')
 	) {
 		try {
-			// Get token from header
+			// Get Bearer token from header
 			const token = req.headers.authorization.split(' ')[1];
 			if (!token) {
 				res.status(401);
@@ -17,7 +17,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
 			// Verify token
 			console.log('Verify the Token in auth middleware', token);
-			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 			// console.log('Decoded data',decoded);
 
 			if (decoded) {
@@ -30,10 +30,12 @@ const protect = asyncHandler(async (req, res, next) => {
 			}
 			// const {payload:refresh} = expired && refreshToken ? verifyRefreshToken(refreshToken) : { payload:null}
 		} catch (error) {
-			console.log('error is danger', error);
+			console.log('Error in verifying the ACCESS TOKEN', error);
 			res.status(403);
 			throw new Error('Not authorized');
 		}
+	}else{
+		return res.sendStatus(401)
 	}
 });
 

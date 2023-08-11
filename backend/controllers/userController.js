@@ -8,95 +8,72 @@ const User = require('../models/userModel');
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
 	const { name, email, password } = req.body;
+	debugger;
+	console.log('Trying to register')
 
 	if (!name || !email || !password) {
-		res.status(400);
-		throw new Error('Please add all fields');
+		return res.status(400).json({'message':'Name, email and password are required'});
+		// throw new Error('Please add all fields');
 	}
 
 	// Check if user exists
-	const userExists = await User.findOne({ email });
-	// console.log(`user name is ${name} and ${userExists}`);
-	if (userExists) {
-		res.status(400);
-		throw new Error('User already exists');
-	}
+	
+		const userExists = await User.findOne({ email });
+		console.log(`user name is ${name} and ${userExists}`);
+		if (userExists !== null) {
+			return res.sendStatus(409).json({"message":"User already exists"});
+			// throw new Error('User already exists');
+		}
+	
+	
+	
 
-	// Hash password
-	const salt = await bcrypt.genSalt(10);
-	const hashedPassword = await bcrypt.hash(password, salt);
 
-	// Generate Refresh Token
-	const refreshToken = generateRefreshToken(name);
+	try{
+		// Hash password
+		const salt = await bcrypt.genSalt(10);
+		const hashedPassword = await bcrypt.hash(password, salt);
+		console.log('hashed passowrd', hashedPassword)
+		// Generate Refresh Token
+		const refreshToken = generateRefreshToken(name);
+		console.log('refreshToken',refreshToken);
 
-	// Create user
-	const user = await User.create({
-		name,
-		email,
-		password: hashedPassword,
-		refreshToken,
-	});
-
-	if (user) {
-		res.cookie('refreshToken', refreshToken, {
-			httpOnly: true,
-			// sameSite: 'None',
-			// secure: true,
-			maxAge: 24 * 60 * 60 * 1000,
+		// Create user
+		const user = await User.create({
+			name,
+			email,
+			password: hashedPassword,
+			refreshToken,
 		});
-		res.status(201).json({
-			_id: user.id,
-			name: user.name,
-			email: user.email,
-			token: generateToken(user.name),
-		});
-	} else {
-		res.status(400);
-		throw new Error('Invalid user data');
-	}
+
+
+		if (user) {
+			console.log('Created User',user)
+			res.cookie('refreshToken', refreshToken, {
+				httpOnly: true,
+				maxAge: 24 * 60 * 60 * 1000,
+			});
+			res.status(201).json({
+				_id: user.id,
+				name: user.name,
+				email: user.email,
+				token: generateToken(user.name),
+			});
+		} else {
+			res.status(400);
+			throw new Error('Invalid user data');
+		}
+
+	}catch(err){
+		res.status(500).json({'message':`Erroring out here ${err.message}`})
+	}	
 });
 
-// @desc    Authenticate a user
-// @route   POST /api/users/login
-// @access  Public
-const loginUser = asyncHandler(async (req, res) => {
-	const { email, password } = req.body;
 
-	// Check for user email
-	const user = await User.findOne({ email });
-
-	if (user && (await bcrypt.compare(password, user.password))) {
-		const filter = { _id: user.id };
-		const refreshToken = generateRefreshToken(user.name);
-		const update = { refreshToken };
-		const currentUser = await User.findOneAndUpdate(filter, update);
-		// console.log('Login: Current User is', currentUser);
-
-		res.cookie('refreshToken', refreshToken, {
-			httpOnly: true,
-			// sameSite: 'None',
-			// secure: true,
-			maxAge: 24 * 60 * 60 * 1000,
-		});
-		const token = generateToken(user.name);
-		console.log('Generated access token is', token);
-		console.log('Generated refresh token is', refreshToken);
-		res.json({
-			_id: user.id,
-			name: user.name,
-			email: user.email,
-			token,
-		});
-	} else {
-		res.status(400);
-		throw new Error('Invalid credentials');
-	}
-});
 
 // @desc    Refresh TOKEN a user
 // @route   POST /api/users/refresh
 // @access  Public
-
 const handleRefreshToken = asyncHandler(async (req, res) => {
 	// console.log('request body is', req.body);
 	// console.log('request cookie is ', req.cookies);
@@ -105,17 +82,18 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
 	// if cookie exist and then jwt exists
 	if (!cookie?.refreshToken) return res.sendStatus(401);
 	const refreshToken = cookie.refreshToken;
-	console.log('Refreshing the access token', refreshToken);
+	console.log('Received Refresh Token', refreshToken);
 
-	if (!refreshToken) {
-		res.status(400);
-		throw new Error('User already exists');
-	}
+	// if (!refreshToken) {
+	// 	res.sendStatus(400);
+	// 	// throw new Error('User already exists');
+	// }
+
+    // try{}catch(err){}
 	// Check for user using refreshtoken
 	// check if the refreshtoken exists
 	const user = await User.findOne({ refreshToken });
 
-	// console.log(user);
 
 	// if no user for the refreshtoken then invalid user.
 	if (!user) {
@@ -124,21 +102,23 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
 	}
 
 	//evaluate jwt
-
 	jwt.verify(refreshToken, process.env.REFRESH_JWT_SECRET, (err, decoded) => {
 		// console.log(decoded);
-		if (err || user.name !== decoded.username)
-			return res.status(400).send({
-				message: 'Something is wrong with refreshtoken!',
-			});
+		if (err || user.name !== decoded.username){
+            return res.sendStatus(403);
+        }
+			
 		const accessToken = jwt.sign(
-			{ username: decoded.username },
-			process.env.JWT_SECRET,
+			{ name: decoded.username },
+			process.env.ACCESS_TOKEN_SECRET,
 			{ expiresIn: '30s' }
 		);
+
 		res.json({ accessToken });
 	});
 });
+
+
 
 // @desc    Logout a user
 // @route   POST /api/users/logout
@@ -184,21 +164,26 @@ const getMe = asyncHandler(async (req, res) => {
 
 // Generate JWT
 const generateToken = (name) => {
-	return jwt.sign({ username: name }, process.env.JWT_SECRET, {
+
+	// In production always use 5 mins to 15 mins for JSON Tokens
+	return jwt.sign({ username: name }, process.env.ACCESS_TOKEN_SECRET, {
 		expiresIn: '10s',
 	});
 };
 // Refresh Token
 const generateRefreshToken = (name) => {
-	return jwt.sign({ username: name }, process.env.REFRESH_JWT_SECRET, {
+
+	// Refresh tokens are generally longer than the Access web token
+	return jwt.sign({ username: name }, process.env.REFRESH_TOKEN_SECRET, {
 		expiresIn: '1d',
 	});
 };
 
 module.exports = {
 	registerUser,
-	loginUser,
 	getMe,
 	handleRefreshToken,
 	handleLogout,
+	generateToken,
+	generateRefreshToken
 };
