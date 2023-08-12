@@ -18,10 +18,11 @@ const protect = asyncHandler(async (req, res, next) => {
             }
 
             // Verify token
-            console.log('Verify the Token in auth middleware', token)
+            // console.log('Verify the Token in auth middleware', token)
+
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
             // console.log('Decoded data',decoded);
-
+            console.log('Decoded value is', decoded)
             if (decoded) {
                 const name = decoded.UserInfo.username
                 // Get user from the token

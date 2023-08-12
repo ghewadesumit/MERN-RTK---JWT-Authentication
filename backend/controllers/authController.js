@@ -26,6 +26,7 @@ const handleLogin = asyncHandler(async (req, res) => {
         const match = await bcrypt.compare(password, user.password)
 
         if (user && match) {
+            const roles = Object.values(user.roles).filter(Boolean)
             const filter = { _id: user.id }
 
             // We are saving refresh token inside the Database to invalidate the user if they decide to logout earlier than the
@@ -42,7 +43,7 @@ const handleLogin = asyncHandler(async (req, res) => {
                 // secure: true,
                 maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
             })
-            const token = generateToken(user.name, user.roles)
+            const token = generateToken(user.name, roles)
             // console.log('Generated access token is', token);
             // console.log('Generated refresh token is', refreshToken);
 

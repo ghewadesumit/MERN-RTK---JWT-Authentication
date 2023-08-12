@@ -43,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
             password: hashedPassword,
             refreshToken,
         })
-
+        const roles = Object.values(user.roles).filter(Boolean)
         if (user) {
             console.log('Created User', user)
             res.cookie('refreshToken', refreshToken, {
@@ -55,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
-                token: generateToken(user.name, user.roles),
+                token: generateToken(user.name, roles),
             })
         } else {
             res.status(400)
