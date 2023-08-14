@@ -8,23 +8,23 @@ import Register from './pages/Register';
 import PersistLogin from './components/PersistLogin';
 
 function App() {
-	return (
-		<>
-			<Router>
-				<div className='container'>
-					<Header />
-					<Routes>
-						<Route element={<PersistLogin />}>
-							<Route path='/' element={<Dashboard />} />
-							<Route path='/login' element={<Login />} />
-							<Route path='/register' element={<Register />} />
-						</Route>
-					</Routes>
-				</div>
-			</Router>
-			<ToastContainer />
-		</>
-	);
+    return (
+        <>
+            <Router>
+                <main className="container">
+                    {/* <Header /> */}
+                    <Routes>
+                        {/* <Route element={<PersistLogin />}> */}
+                        {/* <Route path="/" element={<Dashboard />} /> */}
+                        {/* <Route path="/login" element={<Login />} /> */}
+                        <Route path="/register" element={<Register />} />
+                        {/* </Route> */}
+                    </Routes>
+                </main>
+            </Router>
+            {/* <ToastContainer /> */}
+        </>
+    );
 }
 
 export default App;

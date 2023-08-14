@@ -1,5 +1,3 @@
-const allowedOrigins = [
-    'https://localhost:3500'
-]
+const allowedOrigins = ['http://localhost:5000', 'http://localhost:3000'];
 
 module.exports = allowedOrigins;
