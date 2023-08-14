@@ -1,8 +1,8 @@
-const { generateToken } = require('../controllers/tokenController')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
-const asyncHandler = require('express-async-handler')
-const User = require('../models/userModel')
+const { generateToken } = require('../controllers/tokenController');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const asyncHandler = require('express-async-handler');
+const User = require('../models/userModel');
 
 // @desc    Refresh TOKEN a user
 // @route   POST /api/users/refresh
@@ -10,44 +10,74 @@ const User = require('../models/userModel')
 const handleRefreshToken = asyncHandler(async (req, res) => {
     // console.log('request body is', req.body);
     // console.log('request cookie is ', req.cookies);
-    const cookie = req.cookies
+    const cookie = req.cookies;
     // console.log('cookie', cookie);
     // if cookie exist and then jwt exists
-    if (!cookie?.refreshToken) return res.sendStatus(401)
-    const refreshToken = cookie.refreshToken
-    console.log('Received Refresh Token', refreshToken)
+    if (!cookie?.refreshToken) return res.sendStatus(401);
+    const refreshToken = cookie.refreshToken;
+    // console.log('Received Refresh Token', refreshToken)
 
-    // if (!refreshToken) {
-    // 	res.sendStatus(400);
-    // 	// throw new Error('User already exists');
-    // }
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        sameSite: 'None',
+        secure: true,
+    });
 
-    // try{}catch(err){}
     // Check for user using refreshtoken
-    // check if the refreshtoken exists
-    const user = await User.findOne({ refreshToken })
+    const user = await User.findOne({ refreshToken });
 
     // if no user for the refreshtoken then invalid user.
+    /**
+     * This could also potentially be a situation where your token is compromised
+     * This is the case of Refresh Token reuse. Here we want to identify the user by decoding the
+     * information in the received Refresh Token.
+     * Once the user is been identified we need to delete all the refresh token from the stored refresh token array.
+     */
     if (!user) {
-        console.log('Error is returned from here null')
-        return res.sendStatus(403).json({ message: 'Refresh token not found' }) //forbidden
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+            // If the err is there then the refresh token is expired
+            if (err) return res.sendStatus(403).json({ message: 'Refresh token not found and is Expired' });
+
+            const hackedUser = await User.findOne({ name: decoded.username }).exec();
+            hackedUser.refreshToken = [];
+            const result = await hackedUser.save();
+            console.log(`Result is ${result}`);
+        });
+        console.log('Error is returned from here null');
+        return res.sendStatus(403).json({ message: 'Refresh token not found' }); //forbidden
     }
 
+    const newRefreshTokenArray = user.refreshToken.filter((rt) => rt !== refreshToken);
+
     //evaluate jwt
-    jwt.verify(
-        refreshToken,
-        process.env.REFRESH_TOKEN_SECRET,
-        (err, decoded) => {
-            // console.log(decoded);
-            if (err || user.name !== decoded.username) {
-                return res.sendStatus(403)
-            }
-
-            const accessToken = generateToken(decoded.username, user.roles)
-
-            res.json({ accessToken })
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+        // If refresh token is expired
+        if (err) {
+            user.refreshToken = [...newRefreshTokenArray];
+            await user.save();
         }
-    )
-})
+        if (err || user.name !== decoded.username) {
+            return res.sendStatus(403).json({ message: 'Tere refreshtoken k username mai problem hai re baba' });
+        }
 
-module.exports = { handleRefreshToken }
+        // Refresh token is still valid
+        const accessToken = generateToken(decoded.username, user.roles);
+
+        const newRefreshToken = generateRefreshToken(user.name);
+        user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
+        await user.save();
+        // console.log('Login: Current User is', currentUser);
+
+        // setting httpOnly refreshToken is not accessible by JavaScript
+        res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            sameSite: 'None',
+            // secure: true,
+            maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
+        });
+
+        res.json({ accessToken });
+    });
+});
+
+module.exports = { handleRefreshToken };
