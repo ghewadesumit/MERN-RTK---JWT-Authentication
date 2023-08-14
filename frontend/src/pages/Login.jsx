@@ -7,107 +7,122 @@ import { login, reset } from '../features/auth/authSlice';
 import Spinner from '../components/Spinner';
 
 function Login() {
-	const [formData, setFormData] = useState({
-		email: '',
-		password: '',
-	});
+    const { setAuth } = useContext(AuthContext);
+    const userRef = useRef();
+    const errRef = useRef();
 
-	const { email, password } = formData;
+    const [user, setUser] = useState('');
+    const [pwd, setPwd] = useState('');
+    const [errMsg, setErrMsg] = useState('');
+    const [success, setSuccess] = useState(false);
 
-	const navigate = useNavigate();
-	const dispatch = useDispatch();
+    useEffect(() => {
+        userRef.current.focus();
+    }, []);
 
-	const { user, isLoading, isError, isSuccess, message } = useSelector(
-		(state) => state.auth
-	);
+    useEffect(() => {
+        setErrMsg('');
+    }, [user, pwd]);
 
-	useEffect(() => {
-		if (isError) {
-			toast.error(message);
-		}
+    const [formData, setFormData] = useState({
+        email: '',
+        password: '',
+    });
 
-		if (isSuccess || user) {
-			navigate('/');
-		}
+    const { email, password } = formData;
 
-		dispatch(reset());
-	}, [user, isError, isSuccess, message, navigate, dispatch]);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-	const onChange = (e) => {
-		setFormData((prevState) => ({
-			...prevState,
-			[e.target.name]: e.target.value,
-		}));
-	};
+    const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth);
 
-	const togglePersist = () => {};
-	const onSubmit = (e) => {
-		e.preventDefault();
+    useEffect(() => {
+        if (isError) {
+            toast.error(message);
+        }
 
-		const userData = {
-			email,
-			password,
-		};
+        if (isSuccess || user) {
+            navigate('/');
+        }
 
-		dispatch(login(userData));
-	};
+        dispatch(reset());
+    }, [user, isError, isSuccess, message, navigate, dispatch]);
 
-	if (isLoading) {
-		return <Spinner />;
-	}
+    const onChange = (e) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }));
+    };
 
-	return (
-		<>
-			<section className='heading'>
-				<h1>
-					<FaSignInAlt /> Login
-				</h1>
-				<p>Login and start setting goals</p>
-			</section>
+    const togglePersist = () => {};
+    const onSubmit = (e) => {
+        e.preventDefault();
 
-			<section className='form'>
-				<form onSubmit={onSubmit}>
-					<div className='form-group'>
-						<input
-							type='email'
-							className='form-control'
-							id='email'
-							name='email'
-							value={email}
-							placeholder='Enter your email'
-							onChange={onChange}
-						/>
-					</div>
-					<div className='form-group'>
-						<input
-							type='password'
-							className='form-control'
-							id='password'
-							name='password'
-							value={password}
-							placeholder='Enter password'
-							onChange={onChange}
-						/>
-					</div>
+        const userData = {
+            email,
+            password,
+        };
 
-					<div className='form-group'>
-						<input
-							type='checkbox'
-							id='persist'
-							onChange={togglePersist}
-							// checked={persist}
-						/>
-					</div>
+        dispatch(login(userData));
+    };
 
-					<div className='form-group'>
-						<button type='submit' className='btn btn-block'>
-							Submit
-						</button>
-					</div>
-				</form>
-			</section>
-		</>
-	);
+    if (isLoading) {
+        return <Spinner />;
+    }
+
+    return (
+        <>
+            <section className="heading">
+                <h1>
+                    <FaSignInAlt /> Login
+                </h1>
+                <p>Login and start setting goals</p>
+            </section>
+
+            <section className="form">
+                <form onSubmit={onSubmit}>
+                    <div className="form-group">
+                        <input
+                            type="email"
+                            className="form-control"
+                            id="email"
+                            name="email"
+                            value={email}
+                            placeholder="Enter your email"
+                            onChange={onChange}
+                        />
+                    </div>
+                    <div className="form-group">
+                        <input
+                            type="password"
+                            className="form-control"
+                            id="password"
+                            name="password"
+                            value={password}
+                            placeholder="Enter password"
+                            onChange={onChange}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <input
+                            type="checkbox"
+                            id="persist"
+                            onChange={togglePersist}
+                            // checked={persist}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <button type="submit" className="btn btn-block">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </>
+    );
 }
 
 export default Login;

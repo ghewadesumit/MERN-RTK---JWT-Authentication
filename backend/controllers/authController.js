@@ -10,7 +10,7 @@ const User = require('../models/userModel');
 const handleLogin = asyncHandler(async (req, res) => {
     const cookie = req.cookie;
     const { email, password } = req.body;
-
+    console.log(email, password);
     if (!email || !password) {
         return res.status(400).json({ message: 'email and password are required' });
         // throw new Error('Please add all fields');
@@ -50,11 +50,11 @@ const handleLogin = asyncHandler(async (req, res) => {
             res.cookie('refreshToken', newRefreshToken, {
                 httpOnly: true,
                 sameSite: 'None',
-                // secure: true,
+                secure: true,
                 maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
             });
             const token = generateToken(user.name, roles);
-            // console.log('Generated access token is', token);
+            console.log('Generated access token is', token);
             // console.log('Generated refresh token is', refreshToken);
 
             // Never store access token in cookie or local storage. Keep it in Session Storage.

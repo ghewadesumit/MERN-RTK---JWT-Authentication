@@ -3,7 +3,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Header from './components/Header';
 import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
+// import Login from './pages/Login';
+import Login from './pages/DaveLogin';
 import Register from './pages/Register';
 import PersistLogin from './components/PersistLogin';
 
@@ -16,8 +17,8 @@ function App() {
                     <Routes>
                         {/* <Route element={<PersistLogin />}> */}
                         {/* <Route path="/" element={<Dashboard />} /> */}
-                        {/* <Route path="/login" element={<Login />} /> */}
-                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
+                        {/* <Route path="/register" element={<Register />} /> */}
                         {/* </Route> */}
                     </Routes>
                 </main>
