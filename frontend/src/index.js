@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -7,13 +8,30 @@ import { Provider } from 'react-redux';
 import * as serviceWorker from './serviceWorker';
 import { AuthProvider } from './context/AuthProvider';
 
+/*ReactDOM.render(
+    <React.StrictMode>
+        <BrowserRouter>
+        <Provider store={store}> 
+            <AuthProvider>
+                <Routes>
+                    <Route path="/*" element={<App />} />
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
+     </Provider> 
+    </React.StrictMode>,
+    document.getElementById('root')
+);*/
+
 ReactDOM.render(
     <React.StrictMode>
-        {/* <Provider store={store}> */}
-        <AuthProvider>
-            <App />
-        </AuthProvider>
-        {/* </Provider> */}
+        <BrowserRouter>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/*" element={<App />} />
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
     </React.StrictMode>,
     document.getElementById('root')
 );

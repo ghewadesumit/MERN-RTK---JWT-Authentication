@@ -237,7 +237,7 @@ body {
     background-color: dodgerblue;
 }
 
-.container {
+.App {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -328,4 +328,15 @@ button {
     font-weight: bold;
     padding: 0.5rem;
     margin-bottom: 0.5rem;
+}
+
+.line {
+    display: inline-block;
+}
+
+.flexGrow {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
 }

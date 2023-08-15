@@ -75,11 +75,12 @@ function Register() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            const emailLowerCase = email?.toLowerCase();
             const response = await axios.post(
                 REGISTER_URL,
                 JSON.stringify({
                     name: userName,
-                    email,
+                    email: emailLowerCase,
                     password: pwd,
                 }),
                 {
