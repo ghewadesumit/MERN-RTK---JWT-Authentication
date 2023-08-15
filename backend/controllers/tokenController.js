@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
 // Generate JWT
 const generateToken = (name, roles) => {
@@ -11,14 +11,14 @@ const generateToken = (name, roles) => {
         {
             expiresIn: '120s',
         }
-    )
-}
+    );
+};
 // Refresh Token
 const generateRefreshToken = (name) => {
     // Refresh tokens are generally longer than the Access web token
     return jwt.sign({ username: name }, process.env.REFRESH_TOKEN_SECRET, {
         expiresIn: '1d',
-    })
-}
+    });
+};
 
-module.exports = { generateRefreshToken, generateToken }
+module.exports = { generateRefreshToken, generateToken };
