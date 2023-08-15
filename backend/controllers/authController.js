@@ -37,7 +37,11 @@ const handleLogin = asyncHandler(async (req, res) => {
             const newRefreshTokenArray = !cookie?.refreshToken ? user.refreshToken : user.refreshToken.filter((rt) => rt !== cookie.refreshToken);
 
             if (cookie?.jwt) {
-                res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'None', secure: true });
+                res.clearCookie('refreshToken', {
+                    httpOnly: true,
+                    sameSite: 'None',
+                    secure: true,
+                });
             }
 
             user.refreshToken = [...newRefreshTokenArray, newRefreshToken];

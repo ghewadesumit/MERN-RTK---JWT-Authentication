@@ -1,4 +1,4 @@
-const { generateToken } = require('../controllers/tokenController');
+const { generateToken, generateRefreshToken } = require('../controllers/tokenController');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const asyncHandler = require('express-async-handler');
@@ -72,11 +72,11 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
             sameSite: 'None',
-            // secure: true,
+            secure: true,
             maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
         });
 
-        res.json({ accessToken });
+        res.json({ token: accessToken });
     });
 });
 
