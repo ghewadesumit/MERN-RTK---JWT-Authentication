@@ -1,11 +1,11 @@
 import { useRef, useState, useEffect } from 'react';
 import useAuth from '../../hook/useAuth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from '../../api/axios';
 const LOGIN_URL = 'users/login';
 
 const Login = () => {
-    const { setAuth } = useAuth();
+    const { setAuth, persist, setPersist } = useAuth();
     const userRef = useRef();
     const errRef = useRef();
     const navigate = useNavigate();
@@ -23,6 +23,14 @@ const Login = () => {
     useEffect(() => {
         setErrMsg('');
     }, [user, pwd]);
+
+    const togglePersist = () => {
+        setPersist((prev) => !prev);
+    };
+
+    useEffect(() => {
+        localStorage.setItem('persist', persist);
+    }, [persist]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,13 +85,18 @@ const Login = () => {
                     <label htmlFor="password">Password:</label>
                     <input type="password" id="password" onChange={(e) => setPwd(e.target.value)} value={pwd} required />
                     <button>Sign In</button>
+
+                    <div className="persistCheck">
+                        <input type="checkbox" id="persist" onChange={togglePersist} checked={persist} />
+                        <label htmlFor="persist">Trust This Device</label>
+                    </div>
                 </form>
                 <p>
                     Need an Account?
                     <br />
                     <span className="line">
                         {/*put router link here*/}
-                        <a href="#">Sign Up</a>
+                        <Link to="/register">Sign Up</Link>
                     </span>
                 </p>
             </section>

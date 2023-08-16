@@ -5,7 +5,7 @@ const generateToken = (name, roles) => {
     // In production always use 5 mins to 15 mins for JSON Tokens
     return jwt.sign(
         {
-            UserInfo: { username: name, roles: roles },
+            UserInfo: { username: name, roles },
         },
         process.env.ACCESS_TOKEN_SECRET,
         {

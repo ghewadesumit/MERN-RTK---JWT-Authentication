@@ -61,7 +61,8 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
         }
 
         // Refresh token is still valid
-        const accessToken = generateToken(decoded.username, user.roles);
+        const roles = Object.values(user.roles);
+        const accessToken = generateToken(decoded.username, roles);
 
         const newRefreshToken = generateRefreshToken(user.name);
         user.refreshToken = [...newRefreshTokenArray, newRefreshToken];
@@ -76,7 +77,7 @@ const handleRefreshToken = asyncHandler(async (req, res) => {
             maxAge: 24 * 60 * 60 * 1000, // this is equal to 1day
         });
 
-        res.json({ token: accessToken });
+        res.json({ roles, token: accessToken });
     });
 });
 
